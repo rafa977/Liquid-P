@@ -1,0 +1,113 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+networks:
+  liquid:
+
+services:
+  
+  ca_liquid:
+    restart: always
+    image: hyperledger/fabric-ca:1.4.8
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca_liquid
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=6054
+    ports:
+      - "6054:6054"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ../organizations/fabric-ca/liquid:/etc/hyperledger/fabric-ca-server
+    container_name: ca_liquid
+    networks:
+      - liquid
+
+  ca_applicant:
+    restart: always
+    image: hyperledger/fabric-ca:1.4.8
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca_applicant
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=7054
+    ports:
+      - "7054:7054"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ../organizations/fabric-ca/applicant:/etc/hyperledger/fabric-ca-server
+    container_name: ca_applicant
+    networks:
+      - liquid
+
+  ca_financer:
+    restart: always
+    image: hyperledger/fabric-ca:1.4.8
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca_financer
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=8054
+    ports:
+      - "8054:8054"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ../organizations/fabric-ca/financer:/etc/hyperledger/fabric-ca-server
+    container_name: ca_financer
+    networks:
+      - liquid
+
+  ca_altfinancer:
+    restart: always
+    image: hyperledger/fabric-ca:1.4.8
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca_financer
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=8154
+    ports:
+      - "8154:8154"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ../organizations/fabric-ca/altfinancer:/etc/hyperledger/fabric-ca-server
+    container_name: ca_altfinancer
+    networks:
+      - liquid
+
+  ca_auditor:
+    restart: always
+    image: hyperledger/fabric-ca:1.4.8
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca_auditor
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=9054
+    ports:
+      - "9054:9054"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ../organizations/fabric-ca/auditor:/etc/hyperledger/fabric-ca-server
+    container_name: ca_auditor
+    networks:
+      - liquid
+
+  ca_authorizer:
+    restart: always
+    image: hyperledger/fabric-ca:1.4.8
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca_authorizer
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=9158
+    ports:
+      - "9158:9158"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ../organizations/fabric-ca/authorizer:/etc/hyperledger/fabric-ca-server
+    container_name: ca_authorizer
+    networks:
+      - liquid

@@ -1,0 +1,25 @@
+The Blockchain network lives under the following directory:
+
+/etc/hyperledger/liquid/
+
+Start the network
+
+go to --> cd /etc/hyperledger/liquid/
+exec: docker-compose -f ./network/docker/docker-compose-ca.yaml up -d (this is for starting the Certificate Authorities of all organizations)
+exec: docker-compose -f ./network/docker/docker-compose-net.yaml -f ./network/docker/docker-compose-couch.yaml up -d (this is for starting the peers and couchdbs of all organizations)
+
+
+
+Stop the network (bring down all network containers withouth deleting)
+docker-compose -f network/docker/docker-compose-ca.yaml -f network/docker/docker-compose-net.yaml -f network/docker/docker-compose-couch.yaml down
+
+All containers have predefined the restart allways variable so everytime the server starts they start also automatically.
+
+Start Stop the Client Application
+
+go to --> cd /etc/hyperledger/liquid/client/
+exec: docker-compose -f docker-compose-app.yaml up -d
+
+To stop it
+exec: docker-compose -f docker-compose-app.yaml down
+

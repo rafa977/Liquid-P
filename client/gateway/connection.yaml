@@ -1,0 +1,351 @@
+---
+#
+# The network connection profile provides client applications the information about the target
+# blockchain network that are necessary for the applications to interact with it. These are all
+# knowledge that must be acquired from out-of-band sources. This file provides such a source.
+#
+name: "liquid"
+
+#
+# Any properties with an "x-" prefix will be treated as application-specific, exactly like how naming
+# in HTTP headers or swagger properties work. The SDK will simply ignore these fields and leave
+# them for the applications to process. This is a mechanism for different components of an application
+# to exchange information that are not part of the standard schema described below. In particular,
+# the "x-type" property with the "hlfv1" value example below is used by Hyperledger Composer to
+# determine the type of Fabric networks (v0.6 vs. v1.0) it needs to work with.
+#
+x-type: "hlfv1"
+
+#
+# Describe what the target network is/does.
+#
+description: "A gateway connection file for the liquid network"
+
+#
+# Schema version of the content. Used by the SDK to apply the corresponding parsing rules.
+#
+version: "1.1"
+
+#
+# [Optional]. But most apps would have this section so that channel objects can be constructed
+# based on the content below. If an app is creating channels, then it likely will not need this
+# section.
+#
+channels:
+  # name of the channel
+  channel:
+    # Required. list of orderers designated by the application to use for transactions on this
+    # channel. This list can be a result of access control ("org1" can only access "ordererA"), or
+    # operational decisions to share loads from applications among the orderers.  The values must
+    # be "names" of orgs defined under "organizations/peers"
+    orderers:
+      - orderer.authorizer
+
+    # Required. list of peers from participating orgs
+    peers:
+      peer0.liquid:
+        # [Optional]. will this peer be sent transaction proposals for endorsement? The peer must
+        # have the chaincode installed. The app can also use this property to decide which peers
+        # to send the chaincode install request. Default: true
+        endorsingPeer: true
+
+        # [Optional]. will this peer be sent query proposals? The peer must have the chaincode
+        # installed. The app can also use this property to decide which peers to send the
+        # chaincode install request. Default: true
+        chaincodeQuery: true
+
+        # [Optional]. will this peer be sent query proposals that do not require chaincodes, like
+        # queryBlock(), queryTransaction(), etc. Default: true
+        ledgerQuery: true
+
+        # [Optional]. will this peer be the target of the SDK's listener registration? All peers can
+        # produce events but the app typically only needs to connect to one to listen to events.
+        # Default: true
+        eventSource: true
+
+      peer0.applicant:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      peer0.financer:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      peer0.altfinancer:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      peer0.auditor:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+    chaincodes:
+      # the format follows the "cannonical name" of chaincodes by fabric code
+      - sharessc:1.0
+
+#
+# list of participating organizations in this network
+#
+organizations:
+  Liquid:
+    mspid: LiquidMSP
+    peers:
+      - peer0.liquid
+
+  Applicant:
+    mspid: ApplicantMSP
+    peers:
+      - peer0.applicant
+  
+  Financer:
+    mspid: FinancerMSP
+    peers:
+      - peer0.financer
+
+  Altfinancer:
+    mspid: AltfinancerMSP
+    peers:
+      - peer0.altfinancer
+
+  Auditor:
+    mspid: AuditorMSP
+    peers:
+      - peer0.auditor
+
+#
+# List of orderers to send transaction and channel create/update requests to. For the time
+# being only one orderer is needed. If more than one is defined, which one get used by the
+# SDK is implementation specific. Consult each SDK's documentation for its handling of orderers.
+#
+orderers:
+  orderer.authorizer:
+    url: grpcs://orderer.authorizer:7050
+
+    # these are standard properties defined by the gRPC library
+    # they will be passed in as-is to gRPC client constructor
+    grpcOptions:
+      ssl-target-name-override: orderer.authorizer
+    tlsCACerts:
+      path:  ./network/organizations/ordererOrganizations/authorizer/orderers/orderer.authorizer/tls/tlscacerts/tls-localhost-9158-ca_authorizer.pem
+
+#
+# List of peers to send various requests to, including endorsement, query
+# and event listener registration.
+#
+peers:
+  peer0.liquid:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://peer0.liquid:6051
+    grpcOptions:
+      ssl-target-name-override: peer0.liquid
+      hostnameOverride: peer0.liquid
+    tlsCACerts:
+      path: ./network/organizations/peerOrganizations/liquid/peers/peer0.liquid/tls/tlscacerts/tls-localhost-6054-ca_liquid.pem
+
+  peer0.applicant:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://peer0.applicant:7051
+    grpcOptions:
+      ssl-target-name-override: peer0.applicant
+      hostnameOverride: peer0.applicant
+    tlsCACerts:
+      path: ./network/organizations/peerOrganizations/applicant/peers/peer0.applicant/tls/tlscacerts/tls-localhost-7054-ca_applicant.pem
+
+  peer0.financer:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://peer0.financer:8051
+    grpcOptions:
+      ssl-target-name-override: peer0.financer
+      hostnameOverride: peer0.financer
+    tlsCACerts:
+      path: ./network/organizations/peerOrganizations/financer/peers/peer0.financer/tls/tlscacerts/tls-localhost-8054-ca_financer.pem
+
+  peer0.altfinancer:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://peer0.altfinancer:8251
+    grpcOptions:
+      ssl-target-name-override: peer0.altfinancer
+      hostnameOverride: peer0.altfinancer
+    tlsCACerts:
+      path: ./network/organizations/peerOrganizations/altfinancer/peers/peer0.altfinancer/tls/tlscacerts/tls-localhost-8154-ca_altfinancer.pem
+
+  peer0.auditor:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://peer0.auditor:9051
+    grpcOptions:
+      ssl-target-name-override: peer0.auditor
+      hostnameOverride: peer0.auditor
+    tlsCACerts:
+      path: ./network/organizations/peerOrganizations/auditor/peers/peer0.auditor/tls/tlscacerts/tls-localhost-9054-ca_auditor.pem
+
+certificateAuthorities:
+  #
+  # [Required]. MagnetoCorp CA
+  #
+  ca_liquid:
+     #
+     # [Required]. CA IP address
+     #
+     url: https://ca_liquid:6054
+     #
+     # [Optioanl]. HTTP connection properties used for communication
+     #
+     httpOptions:
+       verify: true
+
+     tlsCACerts:
+      # Comma-Separated list of paths
+      pem: "./network/organizations/peerOrganizations/liquid/tlsca/tlsca.liquid-cert.pem"
+      # Client key and cert for TLS mutual auth with Fabric CA. If the target Fabric CA server
+      # does not have TLS mutual auth turned on, then this section is not needed
+      # client:
+      #   keyfile: path/to/tls/fabricca/certs/client/client_fabric_client-key.pem
+      #   certfile: path/to/tls/fabricca/certs/client/client_fabric_client.pem
+
+     #
+     # [Optional]. Fabric-CA supports Certificate Signing Requests (CSRs). A
+     # registrar is needed to enroll new users.
+     #
+     registrar:
+       - enrollId: admin
+         enrollSecret: adminpw
+     #
+     # [Optional]. The name of the CA.
+     #
+     caName: ca_liquid
+
+  ca_applicant:
+     #
+     # [Required]. CA IP address
+     #
+     url: https://ca_applicant:7054
+     #
+     # [Optioanl]. HTTP connection properties used for communication
+     #
+     httpOptions:
+       verify: true
+
+     tlsCACerts:
+      # Comma-Separated list of paths
+      pem: "./network/organizations/peerOrganizations/applicant/tlsca/tlsca.applicant-cert.pem"
+      # Client key and cert for TLS mutual auth with Fabric CA. If the target Fabric CA server
+      # does not have TLS mutual auth turned on, then this section is not needed
+      # client:
+      #   keyfile: path/to/tls/fabricca/certs/client/client_fabric_client-key.pem
+      #   certfile: path/to/tls/fabricca/certs/client/client_fabric_client.pem
+
+     #
+     # [Optional]. Fabric-CA supports Certificate Signing Requests (CSRs). A
+     # registrar is needed to enroll new users.
+     #
+     registrar:
+       - enrollId: admin
+         enrollSecret: adminpw
+     #
+     # [Optional]. The name of the CA.
+     #
+     caName: ca_applicant
+  
+  ca_financer:
+     #
+     # [Required]. CA IP address
+     #
+     url: https://ca_financer:8054
+     #
+     # [Optioanl]. HTTP connection properties used for communication
+     #
+     httpOptions:
+       verify: true
+
+     tlsCACerts:
+      # Comma-Separated list of paths
+      pem: "./network/organizations/peerOrganizations/financer/tlsca/tlsca.financer-cert.pem"
+      # Client key and cert for TLS mutual auth with Fabric CA. If the target Fabric CA server
+      # does not have TLS mutual auth turned on, then this section is not needed
+      # client:
+      #   keyfile: path/to/tls/fabricca/certs/client/client_fabric_client-key.pem
+      #   certfile: path/to/tls/fabricca/certs/client/client_fabric_client.pem
+
+     #
+     # [Optional]. Fabric-CA supports Certificate Signing Requests (CSRs). A
+     # registrar is needed to enroll new users.
+     #
+     registrar:
+       - enrollId: admin
+         enrollSecret: adminpw
+     #
+     # [Optional]. The name of the CA.
+     #
+     caName: ca_financer
+  
+  ca_altfinancer:
+     #
+     # [Required]. CA IP address
+     #
+     url: https://ca_altfinancer:8154
+     #
+     # [Optioanl]. HTTP connection properties used for communication
+     #
+     httpOptions:
+       verify: true
+
+     tlsCACerts:
+      # Comma-Separated list of paths
+      pem: "./network/organizations/peerOrganizations/altfinancer/tlsca/tlsca.altfinancer-cert.pem"
+      # Client key and cert for TLS mutual auth with Fabric CA. If the target Fabric CA server
+      # does not have TLS mutual auth turned on, then this section is not needed
+      # client:
+      #   keyfile: path/to/tls/fabricca/certs/client/client_fabric_client-key.pem
+      #   certfile: path/to/tls/fabricca/certs/client/client_fabric_client.pem
+
+     #
+     # [Optional]. Fabric-CA supports Certificate Signing Requests (CSRs). A
+     # registrar is needed to enroll new users.
+     #
+     registrar:
+       - enrollId: admin
+         enrollSecret: adminpw
+     #
+     # [Optional]. The name of the CA.
+     #
+     caName: ca_altfinancer
+
+  ca_auditor:
+     #
+     # [Required]. CA IP address
+     #
+     url: https://ca_auditor:9054
+     #
+     # [Optioanl]. HTTP connection properties used for communication
+     #
+     httpOptions:
+       verify: true
+
+     tlsCACerts:
+      # Comma-Separated list of paths
+      pem: "./network/organizations/peerOrganizations/auditor/tlsca/tlsca.auditor-cert.pem"
+      # Client key and cert for TLS mutual auth with Fabric CA. If the target Fabric CA server
+      # does not have TLS mutual auth turned on, then this section is not needed
+      # client:
+      #   keyfile: path/to/tls/fabricca/certs/client/client_fabric_client-key.pem
+      #   certfile: path/to/tls/fabricca/certs/client/client_fabric_client.pem
+
+     #
+     # [Optional]. Fabric-CA supports Certificate Signing Requests (CSRs). A
+     # registrar is needed to enroll new users.
+     #
+     registrar:
+       - enrollId: admin
+         enrollSecret: adminpw
+     #
+     # [Optional]. The name of the CA.
+     #
+     caName: ca_auditor

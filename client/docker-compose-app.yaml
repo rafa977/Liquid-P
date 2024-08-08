@@ -1,0 +1,20 @@
+version: "3.9"
+networks:
+  liquid:
+
+services:
+  liquid-app:
+    restart: always
+    container_name: liquid-app
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8081:3000"
+    image: "liquid-app:latest"
+    volumes:
+      - /etc/hyperledger/liquid/network:/usr/src/app/network
+      - /etc/hyperledger/liquid/client/gateway:/usr/src/app/gateway
+      - /etc/hyperledger/liquid/client/wallet/organizationts:/usr/src/app/wallet
+    networks:
+      - liquid

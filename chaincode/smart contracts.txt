@@ -1,0 +1,30 @@
+1. register account in the blockchain    (1st in Fabric --> Wallet --> Blockchain) (check)
+2. get account info     (check)
+3. update account info  (check)
+4. remove from wallet 
+5. delete of account (mark as deleted) (check)
+6. permanent delete of account (fully) (check) (only super admin)
+
+1. add document (check)
+2. get document (check)
+3. update document (check)
+4. send document back with comment 
+5. delete document 
+6. history of document 
+
+1. add/give access rights (check)
+2. get a list of all access rights (check)
+3. update access rights (check)
+4. grant access to a financer for all files of owner (check) (Give access/Revoke access)
+
+1. get all financers (check) (all)
+2. get all users (super admin)
+3. get all requests 
+4. get all documents
+
+1. add loan application request (user) (check)
+2. get loan application (financer/user) (check)
+3. get all loan application requests (financer/user) (check)
+4. action to request (financer/user(cancel))  (check)
+5. delete request 
+6. history of request 

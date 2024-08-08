@@ -1,0 +1,7 @@
+node_modules
+docker
+.git
+# Important: we ignore the 'gateway' folder. The 'gateway' folder will be mounted instead.
+gateway
+# Important: we ignore the 'wallet' folder. The 'wallet' folder will be mounted instead.
+wallet

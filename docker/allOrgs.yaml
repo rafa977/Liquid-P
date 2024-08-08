@@ -1,0 +1,57 @@
+Size: 10
+Organizations:
+    - &Liquid
+        Name: Liquid
+        Port: 6051
+        Peer: peer0
+        ID: LiquidMSP
+    - &Liquid2
+        Name: Liquid
+        Port: 6151
+        Peer: peer1
+        ID: LiquidMSP
+    - &Applicant
+        Name: Applicant
+        Port: 7051
+        Peer: peer0
+        ID: ApplicantMSP
+    - &Applicant2
+        Name: Applicant
+        Port: 7151
+        Peer: peer1
+        ID: ApplicantMSP
+    - &Financer
+        Name: Financer
+        Port: 8051
+        Peer: peer0
+        ID: FinancerMSP
+    - &Financer2
+        Name: Financer
+        Port: 8151
+        Peer: peer1
+        ID: FinancerMSP
+    - &Altfinancer
+        Name: Altfinancer
+        Port: 8251
+        Peer: peer0
+        ID: AltfinancerMSP
+    - &Altfinancer2
+        Name: Altfinancer
+        Port: 8351
+        Peer: peer1
+        ID: AltfinancerMSP
+    - &Auditor
+        Name: Auditor
+        Port: 9051
+        Peer: peer0
+        ID: AuditorMSP
+    - &Auditor2
+        Name: Auditor
+        Port: 9151
+        Peer: peer1
+        ID: AuditorMSP
+Orderer:
+    Name: authorizer
+    Port: 7050
+    Url: localhost    
+    

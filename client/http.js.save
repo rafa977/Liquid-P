@@ -1,0 +1,274 @@
+const express = require('express')
+const app = express()
+const Api = require('./api/api');
+const port = 3000
+
+const winston = require('winston');
+const { format } = winston;
+const { combine, label, json, splat, timestamp, printf  } = format;
+
+const plainFormat = printf( ({ level, message, timestamp ,metadata}) => {
+  let msg = `${timestamp} [${level}] : ${message} `
+  if(metadata) {
+	   msg += JSON.stringify(metadata)
+  }
+  return msg
+});
+
+const logger = winston.createLogger({
+  format: winston.format.combine(
+            format.timestamp(),
+            plainFormat
+        ),
+  transports: [
+    new (winston.transports.Console)({
+      level: 'debug',
+      colorize: true,
+      handleExceptions: true,
+      label: "http"
+    }),
+    new (winston.transports.File)({
+      level: 'debug',
+      colorize: false,
+      handleExceptions: true,
+      label: "http",
+      filename: "./logs/btms-http.log",
+      json: false
+    })
+  ]
+});
+
+function getUsernameFromHttpHeader(req, res) {
+  var username = req.header("user");
+  if (username) {
+    return username;
+  } else {
+    res.status(400).send("missing fabric username in HTTP header 'user'");
+  }
+}
+
+app.get('/', (req, res) => {
+  res.send('The IOSS DR PoC on EBSI Gateway Application is running. Please use /consult or /register endpoints')
+})
+
+app.use(express.json())
+
+app.post('/postRequestWithJsonData', function(req, res) {
+
+    let requestType = req.body.reqType;
+    let username = req.body.username;
+   let id = req.body.data.id
+    let stringy = JSON.stringify(req.body.data)
+    let jsonData = stringy.replace(/[\\$'"]/g, "\\$&")
+    console.log(jsonData)
+    // var today = new Date();
+    // var date = today.getFullYear()+'-'+ ('0' + parseInt(today.getMonth() + 1)).slice(-2) +'-'+('0' + today.getDate()).slice(-2);
+    // var time = ('0' + today.getHours()).slice(-2) + ":" +('0' + today.getMinutes()).slice(-2) + ":" + ('0' + today.getSeconds()).slice(-2);
+    // var currDateTime = date+' '+time;
+
+    //req.body.data.date = currDateTime;
+    
+    logger.error(stringy);
+
+    try {
+        var startTime, endTime;
+        //store the start datetime
+        startTime = new Date();
+
+        //logger.info(`HTTP/register: username: ${username}, iossvatid: ${iossvatid}, startdate:${startdate}, enddate:${enddate}, `);
+        // if (!username || !iossvatid || !startdate || !enddate) {
+        //   logger.info('HTTP/register: Wrong arguments, please provide username, iossvatid, startdate and enddate');
+        //   endTime = new Date();
+        //   res.status(500).json({status: 'error',
+        //                          response: null,
+        //                          error: 'Wrong arguments, please provide username, iossvatid, startdate and enddate',
+        //                          start: startTime.toString(),
+        //                          end:endTime.toString(),
+        //                          ms_ellapsed: endTime -  startTime
+        //                        });
+        //   return;
+        // }
+        //res.status(200).send('ok got it')
+        let reqArgs = [];
+        reqArgs.push(username);
+        reqArgs.push(id);
+        reqArgs.push(jsonData);
+        reqArgs.push(requestType);
+
+        new Api().postRequestWithJsonData(reqArgs)
+          .then((response) => {
+            logger.info('HTTP/register: Callback response'+ JSON.stringify(response.toString()));
+            endTime = new Date();
+            res.status(200).json({status: 'success',
+                                  response: response.toString(),
+                                  error: null,
+                                  start: startTime.toString(),
+                                  end:endTime.toString(),
+                                  ms_ellapsed: endTime -  startTime
+                                  });
+          })
+          .catch((error) => {
+            logger.error('HTTP/register: An error occurred:'+ error.message.toString());
+            endTime = new Date();
+            res.status(500).json({status: 'error',
+                                  response: null,
+                                  error: error.message.toString(),
+                                  start: startTime.toString(),
+                                  end:endTime.toString(),
+                                  ms_ellapsed: endTime -  startTime
+                                });
+          });
+
+        } catch (error) {
+        logger.error('HTTP/register: A general error occurred:'+ error.message.toString());
+        endTime = new Date();
+        res.status(500).json({status: 'error',
+                                response: null,
+                                error: error.message.toString(),
+                                start: startTime.toString(),
+                                end:endTime.toString(),
+                                ms_ellapsed: endTime -  startTime
+                              });
+        return;
+      }
+  });
+
+app.get('/registerDonors', (req, res) => {
+  try {
+    var startTime, endTime;
+    //store the start datetime
+    startTime = new Date();
+
+    logger.info('HTTP/consult: '+ JSON.stringify(req.query));
+    // Access the provided 'page' and 'limt' query parameters
+     let username = req.query.username; //    let username = getUsernameFromHttpHeader(req, res);
+     let iossvatid = req.query.jsondata;
+
+     logger.info(`HTTP/consult: username: ${username}, iossvatid: ${iossvatid}`);
+     if (!username || !iossvatid) {
+       logger.info('HTTP/register: Wrong arguments, please provide username and iossvatid');
+       endTime = new Date();
+       res.status(500).json({status: 'error',
+                             response: null,
+                             error: 'Wrong arguments, please provide username and iossvatid',
+                             start: startTime.toString(),
+                             end:endTime.toString(),
+                             ms_ellapsed: endTime -  startTime
+                           });
+        return;
+     }
+     //res.status(200).send('ok got it')
+     let reqArgs = [];
+     reqArgs.push(username);
+     reqArgs.push(iossvatid);
+
+    new Api().consult(reqArgs)
+      .then((response) => {
+        logger.info('HTTP/consult: Callback response'+ JSON.stringify(response.toString()));
+        endTime = new Date();
+        res.status(200).json({status: 'success',
+                              response: response.toString(),
+                              error: null,
+                              start: startTime.toString(),
+                              end:endTime.toString(),
+                              ms_ellapsed: endTime -  startTime
+                              });
+      })
+      .catch((error) => {
+        logger.error('HTTP/consult: An error occurred:'+ error.message.toString());
+        endTime = new Date();
+        res.status(500).json({status: 'error',
+                              response: null,
+                              error: error.message.toString(),
+                              start: startTime.toString(),
+                              end:endTime.toString(),
+                              ms_ellapsed: endTime -  startTime
+                            });
+      });
+  } catch (error) {
+    logger.error('HTTP/consult: A general error occurred:'+ error.message.toString());
+    endTime = new Date();
+    res.status(500).json({status: 'error',
+                            response: null,
+                            error: error.message.toString(),
+                            start: startTime.toString(),
+                            end:endTime.toString(),
+                            ms_ellapsed: endTime -  startTime
+                          });
+    return;
+  }
+});
+
+app.get('/register', (req, res) => {
+  try {
+    var startTime, endTime;
+    //store the start datetime
+    startTime = new Date();
+
+    logger.info('HTTP/register:'+ JSON.stringify(req.query));
+    // Access the provided 'page' and 'limt' query parameters
+    let username = req.query.username; //    let username = getUsernameFromHttpHeader(req, res);
+    let iossvatid = req.query.iossvatid;
+    let startdate = req.query.startdate;
+    let enddate = req.query.enddate;
+
+    logger.info(`HTTP/register: username: ${username}, iossvatid: ${iossvatid}, startdate:${startdate}, enddate:${enddate}, `);
+    if (!username || !iossvatid || !startdate || !enddate) {
+      logger.info('HTTP/register: Wrong arguments, please provide username, iossvatid, startdate and enddate');
+      endTime = new Date();
+      res.status(500).json({status: 'error',
+                             response: null,
+                             error: 'Wrong arguments, please provide username, iossvatid, startdate and enddate',
+                             start: startTime.toString(),
+                             end:endTime.toString(),
+                             ms_ellapsed: endTime -  startTime
+                           });
+      return;
+    }
+    //res.status(200).send('ok got it')
+    let reqArgs = [];
+    reqArgs.push(username);
+    reqArgs.push(iossvatid);
+    reqArgs.push(startdate);
+    reqArgs.push(enddate);
+
+    new Api().registerDonor(reqArgs)
+      .then((response) => {
+        logger.info('HTTP/register: Callback response'+ JSON.stringify(response.toString()));
+        endTime = new Date();
+        res.status(200).json({status: 'success',
+                              response: response.toString(),
+                              error: null,
+                              start: startTime.toString(),
+                              end:endTime.toString(),
+                              ms_ellapsed: endTime -  startTime
+                              });
+      })
+      .catch((error) => {
+        logger.error('HTTP/register: An error occurred:'+ error.message.toString());
+        endTime = new Date();
+        res.status(500).json({status: 'error',
+                              response: null,
+                              error: error.message.toString(),
+                              start: startTime.toString(),
+                              end:endTime.toString(),
+                              ms_ellapsed: endTime -  startTime
+                            });
+      });
+  } catch (error) {
+    logger.error('HTTP/register: A general error occurred:'+ error.message.toString());
+    endTime = new Date();
+    res.status(500).json({status: 'error',
+                            response: null,
+                            error: error.message.toString(),
+                            start: startTime.toString(),
+                            end:endTime.toString(),
+                            ms_ellapsed: endTime -  startTime
+                          });
+    return;
+  }
+});
+
+app.listen(port, () => {
+  console.log(`HTTP: The IOSS DR PoC on EBSI Gateway Application is listening at http://localhost:${port}`)
+});
